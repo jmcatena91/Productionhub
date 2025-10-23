@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,91 +9,92 @@
         body {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
         }
-        #secondLwcFilterContainer.hidden {
-            display: none;
-        }
-        select {
-            transition: all 0.2s ease-in-out;
+        #secondLwcFilterContainer.hidden { display: none; }
+        select, button, header, main, label, footer {
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
         }
         select:disabled {
-            background-color: #e5e7eb;
-            opacity: 0.75;
+            background-color: #e5e7eb; /* Light mode default disabled */
+            opacity: 0.6;
             cursor: not-allowed;
+        }
+        .dark select:disabled { /* Dark mode disabled style override */
+             background-color: #4b5563; /* bg-gray-600 */
         }
         .result-card {
              opacity: 0;
              transform: translateY(10px);
              animation: fadeIn 0.3s ease-out forwards;
         }
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
         .loader {
+            border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite;
             border: 4px solid #f3f4f6;
             border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .dark .loader {
+            border: 4px solid #4b5563;
+            border-top: 4px solid #60a5fa;
         }
-        .logo-font {
-            font-family: Arial, sans-serif;
-            font-weight: 700;
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .logo-font { font-family: Arial, sans-serif; font-weight: 700; }
+        select option {
+            background-color: #ffffff; /* Light mode option background */
+            color: #111827; /* Light mode option text */
         }
+        .dark select option {
+             background-color: #374151; /* Dark mode option background */
+             color: #f3f4f6; /* Dark mode option text */
+        }
+        /* Removed theme toggle CSS */
     </style>
 </head>
-<body class="bg-blue-50 text-gray-900 font-sans min-h-screen flex flex-col items-center pt-8 md:pt-12 px-4">
+<body class="bg-blue-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 font-sans min-h-screen flex flex-col items-center pt-8 md:pt-12 px-4">
 
     <div class="container mx-auto max-w-4xl w-full">
-        <header class="bg-white rounded-lg shadow-md p-6 mb-8 text-center border border-gray-200">
+        <header class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 text-center border border-gray-200 dark:border-gray-700">
             <div class="flex justify-center items-center mb-2">
-                <h1 class="text-3xl sm:text-4xl logo-font text-black tracking-tight">
+                <h1 class="text-3xl sm:text-4xl logo-font text-black dark:text-white tracking-tight">
                     Production<span class="bg-amber-500 text-black px-2 py-1 rounded-md ml-1">Hub</span>
                 </h1>
             </div>
-            <p class="text-xl sm:text-2xl text-gray-600 mt-1">Production Specifications</p>
-            <p class="text-md text-gray-500 mt-2">Select product options below to view details.</p>
+            <p class="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 mt-1">Production Specifications</p>
+            <p class="text-md text-gray-500 dark:text-gray-400 mt-2">Select product options below to view details.</p>
         </header>
 
         <div id="filters" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="relative">
-                <label for="lwcFilter" class="absolute -top-3 left-3 bg-blue-50 px-1 text-sm text-gray-600">LWC Type</label>
-                <select id="lwcFilter" class="w-full p-3 text-lg border border-gray-300 rounded-md bg-gray-50 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none"></select>
+                <label for="lwcFilter" class="absolute -top-3 left-3 bg-blue-50 dark:bg-gray-900 px-1 text-sm text-gray-600 dark:text-gray-400">LWC Type</label>
+                <select id="lwcFilter" class="w-full p-3 text-lg border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-blue-400 focus:border-indigo-500 dark:focus:border-blue-400 appearance-none disabled:bg-gray-200 dark:disabled:bg-gray-600"></select>
             </div>
             <div id="secondLwcFilterContainer" class="hidden relative">
-                 <label for="secondLwcFilter" class="absolute -top-3 left-3 bg-blue-50 px-1 text-sm text-gray-600">Partner LWC</label>
-                <select id="secondLwcFilter" class="w-full p-3 text-lg border border-gray-300 rounded-md bg-gray-50 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none"></select>
+                 <label for="secondLwcFilter" class="absolute -top-3 left-3 bg-blue-50 dark:bg-gray-900 px-1 text-sm text-gray-600 dark:text-gray-400">Partner LWC</label>
+                <select id="secondLwcFilter" class="w-full p-3 text-lg border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-blue-400 focus:border-indigo-500 dark:focus:border-blue-400 appearance-none disabled:bg-gray-200 dark:disabled:bg-gray-600"></select>
             </div>
             <div class="relative">
-                <label for="insulationFilter" class="absolute -top-3 left-3 bg-blue-50 px-1 text-sm text-gray-600">Insulation</label>
-                <select id="insulationFilter" class="w-full p-3 text-lg border border-gray-300 rounded-md bg-gray-50 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none"></select>
+                <label for="insulationFilter" class="absolute -top-3 left-3 bg-blue-50 dark:bg-gray-900 px-1 text-sm text-gray-600 dark:text-gray-400">Insulation</label>
+                <select id="insulationFilter" class="w-full p-3 text-lg border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-blue-400 focus:border-indigo-500 dark:focus:border-blue-400 appearance-none disabled:bg-gray-200 dark:disabled:bg-gray-600"></select>
             </div>
             <div class="relative">
-                 <label for="lengthFilter" class="absolute -top-3 left-3 bg-blue-50 px-1 text-sm text-gray-600">Length</label>
-                <select id="lengthFilter" class="w-full p-3 text-lg border border-gray-300 rounded-md bg-gray-50 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none"></select>
+                 <label for="lengthFilter" class="absolute -top-3 left-3 bg-blue-50 dark:bg-gray-900 px-1 text-sm text-gray-600 dark:text-gray-400">Length</label>
+                <select id="lengthFilter" class="w-full p-3 text-lg border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-blue-400 focus:border-indigo-500 dark:focus:border-blue-400 appearance-none disabled:bg-gray-200 dark:disabled:bg-gray-600"></select>
             </div>
         </div>
 
         <div class="flex justify-center mb-8">
-            <button id="resetButton" class="px-5 py-2 bg-gray-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition">
+            <button id="resetButton" class="px-5 py-2 bg-gray-600 dark:bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-gray-400 transition">
                 Reset Selections
             </button>
         </div>
 
-        <main id="results-container" class="bg-white rounded-lg shadow-md p-6 md:p-8 min-h-[250px] flex items-center justify-center border border-gray-200 transition-all duration-300">
-            <p class="text-lg text-gray-500">Select options above to see results.</p>
+        <main id="results-container" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 md:p-8 min-h-[250px] flex items-center justify-center border border-gray-200 dark:border-gray-700 transition-all duration-300">
+            <p class="text-lg text-gray-500 dark:text-gray-400">Select options above to see results.</p>
         </main>
 
-        <footer class="text-center mt-8 text-sm text-gray-500">
-            Production Hub v1.0
+        <footer class="text-center mt-8 text-sm text-gray-500 dark:text-gray-400">
+             Production Hub v1.0
         </footer>
     </div>
 
