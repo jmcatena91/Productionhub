@@ -136,22 +136,23 @@ const displayResult = (item) => {
             title = `Specifications for ${baseLwc} + ${item.partner}`;
         }
 
+        // Updated styling for larger text
         resultsContainer.innerHTML = `
             <div class="w-full max-w-2xl mx-auto result-card">
-                <div class="bg-blue-50 dark:bg-gray-700 p-6 rounded-lg border border-blue-200 dark:border-gray-600 shadow-lg">
-                    <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-5">${title}</h3>
-                    <div class="grid grid-cols-2 gap-x-8 gap-y-4 text-lg">
-                        <div class="font-medium text-gray-600 dark:text-gray-300">Diameter Blade Size:</div>
-                        <div class="font-mono text-gray-900 dark:text-gray-100 font-semibold">${item.bladeSize ?? 'N/A'}</div>
+                <div class="bg-amber-500 p-6 rounded-lg border border-amber-600 shadow-lg">
+                    <h3 class="text-3xl font-bold text-black mb-5">${title}</h3>
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-4 text-xl">
+                        <div class="font-medium text-black self-center">Diameter Blade Size:</div>
+                        <div class="font-mono text-black font-bold text-4xl self-center">${item.bladeSize ?? 'N/A'}</div>
 
-                        <div class="font-medium text-gray-600 dark:text-gray-300">Layers to Roll:</div>
-                        <div class="font-mono text-gray-900 dark:text-gray-100 font-semibold">${item.layers ?? 'N/A'}</div>
+                        <div class="font-medium text-black self-center">Layers to Roll:</div>
+                        <div class="font-mono text-black font-bold text-4xl self-center">${item.layers ?? 'N/A'}</div>
 
-                        <div class="font-medium text-gray-600 dark:text-gray-300">QTY. per Pallet:</div>
-                        <div class="font-mono text-gray-900 dark:text-gray-100 font-semibold">${item.qtyPerPallet ?? 'N/A'}</div>
+                        <div class="font-medium text-black self-center">QTY. per Pallet:</div>
+                        <div class="font-mono text-black font-bold text-4xl self-center">${item.qtyPerPallet ?? 'N/A'}</div>
 
-                        <div class="font-medium text-gray-600 dark:text-gray-300">Box Pallet:</div>
-                        <div class="font-mono text-gray-900 dark:text-gray-100 font-semibold">${item.boxPallet ?? 'N/A'}</div>
+                        <div class="font-medium text-black self-center">Box Pallet:</div>
+                        <div class="font-mono text-black font-bold text-4xl self-center">${item.boxPallet ?? 'N/A'}</div>
                     </div>
                 </div>
             </div>`;
@@ -194,7 +195,7 @@ const initializeApp = async () => {
         localItems = data.items;
         console.log(`Loaded ${localItems.length} items.`);
 
-        // --- Initial Population ---
+        // Initial Population
         const lwcOptions = [...new Set(localItems.map(item => item.lwc))];
         lwcOptions.sort((a, b) => parseFraction(a) - parseFraction(b));
         populateDropdown(lwcFilter, lwcOptions);
@@ -206,7 +207,7 @@ const initializeApp = async () => {
         showInitialMessage();
 
 
-        // --- Event Listeners (Filters) ---
+        // Event Listeners (Filters)
         lwcFilter.addEventListener('change', () => {
             const selectedLwc = lwcFilter.value;
             resetDropdown(secondLwcFilter, 'Choose Partner LWC');
@@ -298,7 +299,7 @@ const initializeApp = async () => {
             findAndDisplayResult();
         });
 
-        // --- Reset Button Listener ---
+        // Reset Button Listener
         if (resetButton) {
             resetButton.addEventListener('click', resetFilters);
         } else {
@@ -321,6 +322,5 @@ const initializeApp = async () => {
 
 // --- Initial Calls (AFTER DOM is ready) ---
 document.addEventListener('DOMContentLoaded', () => {
-    initializeApp(); // Initialize the main app filters and data
-    // Theme toggle setup removed
+    initializeApp();
 });
