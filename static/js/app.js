@@ -130,17 +130,20 @@ const findAndDisplayResult = () => {
 // --- Display a single result card ---
 const displayResult = (item) => {
     if (item) {
-        let title = `Specifications for ${item.lwc}`;
-        if (item.partner) {
-            const baseLwc = String(item.lwc).split(' ')[0];
-            title = `Specifications for ${baseLwc} + ${item.partner}`;
-        }
+        // Get the part number or use 'N/A' if missing
+        const partNum = item.partNumber || "N/A";
 
-        // Updated styling for larger text
+        // Updated styling: Title includes "Part Number:" with the value in Dark Red
+        const title = `Part Number:&nbsp;&nbsp;<span class="text-red-800">${partNum}</span>`;
+
         resultsContainer.innerHTML = `
             <div class="w-full max-w-2xl mx-auto result-card">
                 <div class="bg-amber-500 p-6 rounded-lg border border-amber-600 shadow-lg">
-                    <h3 class="text-3xl font-bold text-black mb-5">${title}</h3>
+                    
+                    <h3 class="text-4xl font-bold text-black mb-6 text-center tracking-tight">
+                        ${title}
+                    </h3>
+                    
                     <div class="grid grid-cols-2 gap-x-8 gap-y-4 text-xl">
                         <div class="font-medium text-black self-center">Diameter Blade Size:</div>
                         <div class="font-mono text-black font-bold text-4xl self-center">${item.bladeSize ?? 'N/A'}</div>
