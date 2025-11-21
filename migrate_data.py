@@ -3,20 +3,17 @@ import os
 import sys
 
 # Add the parent directory to the path so we can import app.py content
-# Assuming app.py is in the same directory as this script
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-# Now import the app, db, and Product model from the new app.py
 from app import app, db, Product 
 
 def migrate_json_to_db():
     print("--- Starting Data Migration ---")
     
-    # 1. Define file paths
     base_dir = os.path.abspath(os.path.dirname(__file__))
     data_file_path = os.path.join(base_dir, 'static', 'data', 'products.json')
 
-    # 2. Load JSON data
+    # Load JSON data
     try:
         with open(data_file_path, 'r', encoding='utf-8-sig') as f:
             data = json.load(f)
@@ -29,32 +26,43 @@ def migrate_json_to_db():
         print(f"Error decoding JSON: {e}")
         return
 
-    # 3. Use Flask application context to interact with SQLAlchemy
     with app.app_context():
-        # Check if the table is empty before populating
+        # Check if data exists
         if Product.query.count() > 0:
             print("Database already contains data. Skipping migration.")
             return
 
-        # 4. Create database table if it doesn't exist
         db.create_all()
 
-        # 5. Insert data
         new_products = []
-        for item in items:
-            # Ensure proper handling for missing 'partner' key in single LWCs
-            partner_val = item.get('partner')
+        for i, item in enumerate(items):
+            try:
+                # SAFELY get the quantity, defaulting to 0 if missing or null
+                raw_qty = item.get('qtyPerPallet')
+                if raw_qty is None:
+                    qty_val = 0
+                else:
+                    try:
+                        qty_val = int(raw_qty)
+                    except ValueError:
+                        qty_val = 0
 
-            new_products.append(Product(
-                lwc=item['lwc'],
-                partner=partner_val if partner_val else None,
-                insulation=item['insulation'],
-                length=str(item['length']), # Convert length to string for consistency
-                bladeSize=str(item['bladeSize']),
-                layers=str(item['layers']),
-                qtyPerPallet=int(item['qtyPerPallet']),
-                boxPallet=item['boxPallet']
-            ))
+                # Handle partner field
+                partner_val = item.get('partner')
+
+                new_products.append(Product(
+                    lwc=item.get('lwc', 'Unknown'),
+                    partner=partner_val if partner_val else None,
+                    insulation=item.get('insulation', 'Unknown'),
+                    length=str(item.get('length', '0')),
+                    bladeSize=str(item.get('bladeSize', '0')),
+                    layers=str(item.get('layers', '0')),
+                    qtyPerPallet=qty_val,
+                    boxPallet=item.get('boxPallet', 'Unknown')
+                ))
+            except Exception as e:
+                print(f"Warning: Skipping item at index {i} due to error: {e}")
+                continue
 
         db.session.add_all(new_products)
         db.session.commit()

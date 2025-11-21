@@ -2,7 +2,7 @@
 set -e # Exit immediately if a command exits with a non-zero status.
 
 # --- Configuration ---
-VENV_DIR=".venv"
+VENV_DIR="stats_website_venv"
 PORT="8003"
 # Get the absolute path of the directory where the script is located
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
