@@ -1,184 +1,78 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-    <!-- Character encoding and responsive viewport -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Page title shown in browser tab -->
     <title>Production Hub - Specifications</title>
-
-    <!-- Link to web app manifest for PWA support -->
     <link rel="manifest" href="/static/manifest.json">
-
-    <!-- Load Tailwind CSS from CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
-        /* Improve text rendering and add smooth theme transitions */
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
-        }
-
-        /* Hide the second LWC filter container by default (controlled by JS) */
-        #secondLwcFilterContainer.hidden { display: none; }
-
-        /* Smooth transitions for interactive/form elements and layout areas */
-        select, button, header, main, label, footer {
-            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
-        }
-
-        /* Disabled state styling for selects in light mode */
-        select:disabled {
-            background-color: #e5e7eb; /* Tailwind bg-gray-200 equivalent */
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* Override disabled style for dark mode */
-        .dark select:disabled {
-            background-color: #4b5563; /* Tailwind bg-gray-600 */
-        }
-
-        /* Animate result cards to fade in smoothly */
-        .result-card {
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-
-        /* Define fade-in animation */
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Loader/spinner styling (used during data fetching) */
-        .loader {
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            border: 4px solid #f3f4f6;       /* Light border */
-            border-top: 4px solid #3b82f6;   /* Blue accent */
-        }
-
-        /* Dark mode loader colors */
-        .dark .loader {
-            border: 4px solid #4b5563;       /* Dark gray border */
-            border-top: 4px solid #60a5fa;   /* Lighter blue accent */
-        }
-
-        /* Spinner rotation animation */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Custom font style for logo text */
-        .logo-font {
-            font-family: Arial, sans-serif;
-            font-weight: 700;
-        }
-
-        /* Ensure dropdown options are readable in light mode */
-        select option {
-            background-color: #ffffff; /* White background */
-            color: #111827;            /* Dark gray text */
-        }
-
-        /* Dark mode dropdown options */
-        .dark select option {
-            background-color: #374151; /* Tailwind bg-gray-700 */
-            color: #f3f4f6;            /* Light text */
-        }
-
-        .animated-hub {
-            animation: rainbowHub 6s infinite;
-            color: white !important; /* Ensures good contrast */
-        }
-
-        @keyframes rainbowHub {
-            0%   { background-color: #ef4444; } /* red-500 */
-            14%  { background-color: #f97316; } /* orange-500 */
-            28%  { background-color: #eab308; } /* yellow-500 */
-            42%  { background-color: #22c55e; } /* green-500 */
-            57%  { background-color: #3b82f6; } /* blue-500 */
-            71%  { background-color: #8b5cf6; } /* violet-500 */
-            85%  { background-color: #ec4899; } /* pink-500 */
-            100% { background-color: #ef4444; } /* back to red */
-        }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out; }
+        select, button, header, main, label, footer { transition: all 0.3s ease-in-out; }
+        select:disabled { background-color: #e5e7eb; opacity: 0.6; cursor: not-allowed; }
+        .dark select:disabled { background-color: #4b5563; }
+        .result-card { opacity: 0; transform: translateY(10px); animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        .logo-font { font-family: Arial, sans-serif; font-weight: 700; }
+        .hidden { display: none; }
+        .animated-hub { animation: rainbowHub 6s infinite; color: white !important; }
+        @keyframes rainbowHub { 0% { background-color: #ef4444; } 14% { background-color: #f97316; } 28% { background-color: #eab308; } 42% { background-color: #22c55e; } 57% { background-color: #3b82f6; } 71% { background-color: #8b5cf6; } 85% { background-color: #ec4899; } 100% { background-color: #ef4444; } }
     </style>
 </head>
-
 <body class="bg-gray-900 text-gray-200 font-sans min-h-screen flex flex-col items-center pt-8 md:pt-12 px-4">
-    <!-- Main content container with max width and center alignment -->
-    <div class="container mx-auto max-w-4xl w-full">
-
-        <!-- Page header with title and description -->
+    <div class="container mx-auto max-w-6xl w-full">
+        
         <header class="bg-gray-800 rounded-lg shadow-md p-6 mb-8 text-center border border-gray-700">
             <div class="flex justify-center items-center mb-2">
-                <!-- Main title with branded "Hub" highlight -->
                 <h1 class="text-3xl sm:text-4xl logo-font text-white tracking-tight">
                     <span class="animated-hub px-2 py-1 rounded-md ml-1">Production Hub</span>
                 </h1>
             </div>
-            <!-- Subtitle describing the page purpose -->
             <p class="text-xl sm:text-2xl text-gray-300 mt-1">Production Specifications</p>
-            <!-- Helper text for user guidance -->
-            <p class="text-md text-gray-400 mt-2">Select product options below to view details.</p>
         </header>
 
-        <!-- Filter section: grid of dropdowns for user input -->
-        <div id="filters" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <!-- First filter: LWC Type -->
+        <div id="filters" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            
             <div class="relative">
-                <label for="lwcFilter" class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">LWC Type</label>
-                <select id="lwcFilter" class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 appearance-none disabled:bg-gray-600"></select>
+                <label for="typeFilter" class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">Type</label>
+                <select id="typeFilter" class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></select>
             </div>
 
-            <!-- Second filter: Partner LWC (conditionally shown via JS) -->
-            <div id="secondLwcFilterContainer" class="hidden relative">
-                <label for="secondLwcFilter" class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">Partner LWC</label>
-                <select id="secondLwcFilter" class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 appearance-none disabled:bg-gray-600"></select>
+            <div class="relative">
+                <label for="lwcFilter" class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">LWC</label>
+                <select id="lwcFilter" class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" disabled></select>
             </div>
 
-            <!-- Third filter: Insulation type -->
+            <div id="partnerFilterContainer" class="relative hidden">
+                <label for="partnerFilter" class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">Partner</label>
+                <select id="partnerFilter" class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" disabled></select>
+            </div>
+
             <div class="relative">
                 <label for="insulationFilter" class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">Insulation</label>
-                <select id="insulationFilter" class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 appearance-none disabled:bg-gray-600"></select>
+                <select id="insulationFilter" class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" disabled></select>
             </div>
 
-            <!-- Fourth filter: Length selection -->
             <div class="relative">
                 <label for="lengthFilter" class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">Length</label>
-                <select id="lengthFilter" class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 appearance-none disabled:bg-gray-600"></select>
+                <select id="lengthFilter" class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" disabled></select>
             </div>
         </div>
 
-        <!-- Reset button to clear all selections -->
         <div class="flex justify-center mb-8">
-            <button id="resetButton" class="px-5 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition">
+            <button id="resetButton" class="px-5 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 transition">
                 Reset Selections
             </button>
         </div>
 
-        <!-- Results area: initially shows placeholder, replaced by dynamic content -->
-        <main id="results-container" class="bg-gray-800 rounded-lg shadow-md p-6 md:p-8 min-h-[250px] flex items-center justify-center border border-gray-700 transition-all duration-300">
+        <main id="results-container" class="bg-gray-800 rounded-lg shadow-md p-6 min-h-[200px] flex items-center justify-center border border-gray-700">
             <p class="text-lg text-gray-400">Select options above to see results.</p>
         </main>
 
-        <!-- Page footer with version info -->
         <footer class="text-center mt-8 text-sm text-gray-400">
-            Production Hub v1.0
+            Production Hub v2.2
         </footer>
     </div>
-
-    <!-- External JavaScript file for app logic (filters, API calls, DOM updates) -->
     <script src="/static/js/app.js"></script>
 </body>
 </html>

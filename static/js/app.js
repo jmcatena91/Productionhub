@@ -1,329 +1,254 @@
 // DOM Elements
+const typeFilter = document.getElementById('typeFilter');
 const lwcFilter = document.getElementById('lwcFilter');
-const secondLwcFilterContainer = document.getElementById('secondLwcFilterContainer');
-const secondLwcFilter = document.getElementById('secondLwcFilter');
+const partnerFilterContainer = document.getElementById('partnerFilterContainer');
+const partnerFilter = document.getElementById('partnerFilter');
 const insulationFilter = document.getElementById('insulationFilter');
 const lengthFilter = document.getElementById('lengthFilter');
 const resultsContainer = document.getElementById('results-container');
 const resetButton = document.getElementById('resetButton');
 
-// Global variable for product items
+// Global Data
 let localItems = [];
 
-console.log("app.js loaded");
-
-// --- Helper function to parse fraction strings ---
+// --- Helpers ---
 const parseFraction = (str) => {
     if (!str) return 0;
-    const fractionalPart = String(str).split(' ')[0];
-    const parts = fractionalPart.split('/');
-    if (parts.length === 2) {
-        const num = parseInt(parts[0], 10);
-        const den = parseInt(parts[1], 10);
-        if (!isNaN(num) && !isNaN(den) && den !== 0) return num / den;
+    const cleanStr = String(str).trim();
+    if (cleanStr.includes('/')) {
+        const parts = cleanStr.split('/');
+        return parseInt(parts[0], 10) / parseInt(parts[1], 10);
     }
-    const floatVal = parseFloat(str);
-    return isNaN(floatVal) ? 0 : floatVal;
+    return parseFloat(cleanStr) || 0;
 };
 
-// --- Show Loading Indicator ---
-const showLoading = () => {
-    resultsContainer.innerHTML = `
-        <div class="flex flex-col items-center justify-center">
-            <div class="loader mb-3"></div>
-            <p class="text-lg text-gray-500 dark:text-gray-400">Loading data...</p>
-        </div>`;
-};
-
-// --- Show Error Message ---
-const showErrorMessage = (message) => {
-     resultsContainer.innerHTML = `<p class="text-xl font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-gray-700 p-4 rounded-md border border-red-200 dark:border-red-500">${message}</p>`;
-};
-
-// --- Show Initial/Placeholder Message ---
-const showInitialMessage = (message = "Select options above to see results.") => {
-     const existingCard = resultsContainer.querySelector('.result-card');
-     if (existingCard) existingCard.remove();
-     resultsContainer.innerHTML = `<p class="text-lg text-gray-500 dark:text-gray-400">${message}</p>`;
-};
-
-
-// --- Populate dropdown options ---
-const populateDropdown = (element, options) => {
-    const currentVal = element.value;
-    let defaultText = `-- Choose ${element.id.replace('Filter', '')} --`;
-    if (element.id === 'lwcFilter') defaultText = '-- Choose LWC Type --';
-    if (element.id === 'secondLwcFilter') defaultText = '-- Choose Partner LWC --';
-    if (element.id === 'insulationFilter') defaultText = '-- Choose Insulation --';
-    if (element.id === 'lengthFilter') defaultText = '-- Choose Length --';
-
-    element.innerHTML = `<option value="">${defaultText}</option>`;
-    if (!Array.isArray(options)) {
-        console.error(`Error: Options for ${element.id} is not an array!`, options);
-        element.disabled = true;
-        return;
-    }
-    options.forEach(option => {
-        const opt = document.createElement('option');
-        opt.value = opt.textContent = option;
-        opt.classList.add('bg-gray-50', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
-        element.appendChild(opt);
-    });
+const populateDropdown = (element, options, defaultText) => {
+    element.innerHTML = `<option value="">-- ${defaultText} --</option>`;
     element.disabled = false;
-
-    if (options.map(String).includes(String(currentVal))) {
-        element.value = currentVal;
-    } else {
-         element.value = "";
-    }
+    options.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt;
+        option.textContent = opt;
+        element.appendChild(option);
+    });
 };
 
 const resetDropdown = (element, defaultText) => {
-    let placeholder = `-- ${defaultText} --`;
-    if (element.id === 'lwcFilter') placeholder = '-- Choose LWC Type --';
-    if (element.id === 'secondLwcFilter') placeholder = '-- Choose Partner LWC --';
-    if (element.id === 'insulationFilter') placeholder = '-- Choose Insulation --';
-    if (element.id === 'lengthFilter') placeholder = '-- Choose Length --';
-
-    element.innerHTML = `<option value="">${placeholder}</option>`;
+    element.innerHTML = `<option value="">-- ${defaultText} --</option>`;
     element.disabled = true;
     element.value = "";
 };
 
-// --- Find and display the result ---
+const showMessage = (msg, isError = false) => {
+    const colorClass = isError ? "text-red-500 bg-red-50 border-red-200" : "text-gray-500";
+    resultsContainer.innerHTML = `
+        <div class="w-full max-w-2xl mx-auto p-4 rounded-lg border ${isError ? 'border-red-200' : 'border-transparent'}">
+            <p class="text-center text-xl ${colorClass}">${msg}</p>
+        </div>`;
+};
+
+// --- Core Logic ---
+
 const findAndDisplayResult = () => {
+    const typeVal = typeFilter.value;
     const lwcVal = lwcFilter.value;
-    const secondLwcVal = secondLwcFilter.value;
+    const partnerVal = partnerFilter.value;
     const insVal = insulationFilter.value;
     const lenVal = lengthFilter.value;
 
-    const requiresPartnerSelection = !secondLwcFilterContainer.classList.contains('hidden');
+    // Check if partner is visible (meaning it's required)
+    const needsPartner = !partnerFilterContainer.classList.contains('hidden');
 
-     if (!lwcVal || !insVal || !lenVal || (requiresPartnerSelection && !secondLwcVal)) {
-         if (lwcVal && (requiresPartnerSelection ? secondLwcVal : true) && insVal) {
-              if (!resultsContainer.querySelector('.result-card')) {
-                    showInitialMessage("Please select Length.");
-              }
-         } else {
-             if (!lwcVal) { showInitialMessage("Select options above to see results."); }
-             else if (requiresPartnerSelection && !secondLwcVal) { showInitialMessage("Please select Partner LWC."); }
-             else if (!insVal) { showInitialMessage("Please select Insulation."); }
-         }
-        return;
+    // Validation: Ensure all visible fields are selected
+    if (!typeVal || !lwcVal || !insVal || !lenVal || (needsPartner && !partnerVal)) {
+        return; 
     }
 
-    let result;
-    if (requiresPartnerSelection) {
-         result = localItems.find(item =>
-            item.lwc === lwcVal && item.partner === secondLwcVal &&
-            item.insulation === insVal && String(item.length) === lenVal
-        );
-    } else {
-        result = localItems.find(item =>
-            item.lwc === lwcVal && item.insulation === insVal &&
-            String(item.length) === lenVal && !item.partner
-        );
-    }
-    displayResult(result);
-};
+    // Find exact match
+    const result = localItems.find(item => 
+        item.Type === typeVal && 
+        item.lwc === lwcVal && 
+        (item.partner === partnerVal) && // Matches empty string "" if single LWC
+        item.insulation === insVal && 
+        String(item.length) === lenVal
+    );
 
-// --- Display a single result card ---
-const displayResult = (item) => {
-    if (item) {
-        // Get the part number or use 'N/A' if missing
-        const partNum = item.partNumber || "N/A";
-
-        // Updated styling: Title includes "Part Number:" with the value in Dark Red
-        const title = `Part Number:&nbsp;&nbsp;<span class="text-red-800">${partNum}</span>`;
-
+    if (result) {
+        // Use the Part Number from the JSON
+        const partNum = result.partNumber || "N/A";
+        
         resultsContainer.innerHTML = `
-            <div class="w-full max-w-2xl mx-auto result-card">
-                <div class="bg-amber-500 p-6 rounded-lg border border-amber-600 shadow-lg">
+            <div class="w-full max-w-2xl mx-auto result-card fade-in-up">
+                <div class="bg-amber-500 p-6 rounded-lg border border-amber-600 shadow-xl">
                     
-                    <h3 class="text-4xl font-bold text-black mb-6 text-center tracking-tight">
-                        ${title}
-                    </h3>
-                    
-                    <div class="grid grid-cols-2 gap-x-8 gap-y-4 text-xl">
-                        <div class="font-medium text-black self-center">Diameter Blade Size:</div>
-                        <div class="font-mono text-black font-bold text-4xl self-center">${item.bladeSize ?? 'N/A'}</div>
+                    <div class="text-center border-b border-black/10 pb-4 mb-6">
+                        <p class="text-sm font-bold text-black/60 uppercase tracking-wider mb-1">Part Number</p>
+                        <h3 class="text-5xl font-extrabold text-black tracking-tight">
+                            ${partNum}
+                        </h3>
+                    </div>
 
-                        <div class="font-medium text-black self-center">Layers to Roll:</div>
-                        <div class="font-mono text-black font-bold text-4xl self-center">${item.layers ?? 'N/A'}</div>
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-4 text-xl text-black">
+                        <div class="font-medium opacity-80">Blade Size:</div>
+                        <div class="font-mono font-bold text-2xl">${result.bladeSize}</div>
 
-                        <div class="font-medium text-black self-center">QTY. per Pallet:</div>
-                        <div class="font-mono text-black font-bold text-4xl self-center">${item.qtyPerPallet ?? 'N/A'}</div>
+                        <div class="font-medium opacity-80">Layers:</div>
+                        <div class="font-mono font-bold text-2xl">${result.layers}</div>
 
-                        <div class="font-medium text-black self-center">Box Pallet:</div>
-                        <div class="font-mono text-black font-bold text-4xl self-center">${item.boxPallet ?? 'N/A'}</div>
+                        <div class="font-medium opacity-80">Qty / Pallet:</div>
+                        <div class="font-mono font-bold text-2xl">${result.qtyPerPallet}</div>
+
+                        <div class="font-medium opacity-80">Box Pallet:</div>
+                        <div class="font-mono font-bold text-2xl">${result.boxPallet}</div>
                     </div>
                 </div>
             </div>`;
     } else {
-        showErrorMessage("No matching specification found for the selected combination.");
+        showMessage("No matching specification found.", true);
     }
 };
 
-// --- Reset All Filters ---
-const resetFilters = () => {
-    console.log("Resetting all filters...");
-    lwcFilter.value = "";
-    lwcFilter.dispatchEvent(new Event('change'));
-    showInitialMessage();
-};
-
-// --- Initialize Filters and Load Data ---
 const initializeApp = async () => {
-    console.log("Initializing app...");
-    showLoading();
-
     try {
-        console.log("Fetching /api/products...");
         const response = await fetch('/api/products');
-        console.log("Fetch response status:", response.status);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Fetch failed response text:", errorText);
-            throw new Error(`Failed to load product data (Status: ${response.status}). Please try refreshing.`);
-        }
-
         const data = await response.json();
-
-        if (!data || !Array.isArray(data.items)) {
-             console.error("Fetched data is missing 'items' array or is invalid:", data);
-             throw new Error("Received invalid data format from server.");
-        }
-
-        localItems = data.items;
-        console.log(`Loaded ${localItems.length} items.`);
-
-        // Initial Population
-        const lwcOptions = [...new Set(localItems.map(item => item.lwc))];
-        lwcOptions.sort((a, b) => parseFraction(a) - parseFraction(b));
-        populateDropdown(lwcFilter, lwcOptions);
-
-        resetDropdown(secondLwcFilter, 'Choose Partner LWC');
-        resetDropdown(insulationFilter, 'Choose LWC Type First');
-        resetDropdown(lengthFilter, 'Choose Insulation First');
-        secondLwcFilterContainer.classList.add('hidden');
-        showInitialMessage();
-
-
-        // Event Listeners (Filters)
-        lwcFilter.addEventListener('change', () => {
-            const selectedLwc = lwcFilter.value;
-            resetDropdown(secondLwcFilter, 'Choose Partner LWC');
-            resetDropdown(insulationFilter, selectedLwc ? 'Choose Insulation' : 'Choose LWC Type First');
-            resetDropdown(lengthFilter, 'Choose Insulation First');
-            showInitialMessage();
-
-            const isCombo = localItems.some(item => item.lwc === selectedLwc && item.partner);
-
-            if (isCombo) {
-                const partnerOptions = [...new Set(localItems
-                    .filter(item => item.lwc === selectedLwc && item.partner)
-                    .map(item => item.partner))]
-                    .sort((a, b) => parseFraction(a) - parseFraction(b));
-                populateDropdown(secondLwcFilter, partnerOptions);
-                secondLwcFilterContainer.classList.remove('hidden');
-                resetDropdown(insulationFilter, 'Choose Partner LWC First');
-            } else {
-                 secondLwcFilter.value = '';
-                secondLwcFilterContainer.classList.add('hidden');
-                if (selectedLwc) {
-                    const insulationOptions = [...new Set(localItems
-                        .filter(item => item.lwc === selectedLwc && !item.partner)
-                        .map(item => item.insulation))]
-                        .sort((a, b) => parseFraction(a) - parseFraction(b));
-                    populateDropdown(insulationFilter, insulationOptions);
-                }
-            }
-        });
-
-        secondLwcFilter.addEventListener('change', () => {
-            const selectedLwc = lwcFilter.value;
-            const selectedPartner = secondLwcFilter.value;
-            resetDropdown(insulationFilter, selectedPartner ? 'Choose Insulation' : 'Choose Partner LWC First');
-            resetDropdown(lengthFilter, 'Choose Insulation First');
-            showInitialMessage();
-
-            if (selectedLwc && selectedPartner) {
-                const insulationOptions = [...new Set(localItems
-                    .filter(item => item.lwc === selectedLwc && item.partner === selectedPartner)
-                    .map(item => item.insulation))]
-                    .sort((a, b) => parseFraction(a) - parseFraction(b));
-                populateDropdown(insulationFilter, insulationOptions);
-            }
-        });
-
-        insulationFilter.addEventListener('change', () => {
-            const selectedLwc = lwcFilter.value;
-            const selectedPartner = secondLwcFilter.value;
-            const selectedInsulation = insulationFilter.value;
-            resetDropdown(lengthFilter, selectedInsulation ? 'Choose Length' : 'Choose Insulation First');
-
-            if (selectedInsulation) {
-                let relevantItems;
-                const requiresPartnerSelection = !secondLwcFilterContainer.classList.contains('hidden');
-
-                if(requiresPartnerSelection) {
-                    if (!selectedPartner) {
-                        console.warn("Insulation changed, but partner required and not selected.");
-                        resetDropdown(lengthFilter, 'Choose Partner LWC First');
-                        findAndDisplayResult(); return;
-                    }
-                    relevantItems = localItems.filter(item => item.lwc === selectedLwc && item.partner === selectedPartner && item.insulation === selectedInsulation);
-                } else {
-                    if (!selectedLwc) {
-                         console.warn("Insulation changed, but LWC not selected.");
-                         resetDropdown(lengthFilter, 'Choose LWC Type First');
-                         findAndDisplayResult(); return;
-                    }
-                    relevantItems = localItems.filter(item => item.lwc === selectedLwc && item.insulation === selectedInsulation && !item.partner);
-                }
-
-                const lengthOptions = [...new Set(relevantItems.map(item => item.length))]
-                   .map(String)
-                   .sort((a, b) => {
-                    const aStr = a.split('/')[0].split('-')[0];
-                    const bStr = b.split('/')[0].split('-')[0];
-                    const aNum = parseFloat(aStr);
-                    const bNum = parseFloat(bStr);
-                    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-                    return a.localeCompare(b);
-                });
-                populateDropdown(lengthFilter, lengthOptions);
-            }
-            findAndDisplayResult();
-        });
-
-        lengthFilter.addEventListener('change', () => {
-            findAndDisplayResult();
-        });
-
-        // Reset Button Listener
-        if (resetButton) {
-            resetButton.addEventListener('click', resetFilters);
+        
+        // Check for items array
+        if (data && data.items) {
+            localItems = data.items;
         } else {
-            console.error("Reset button not found!");
+            throw new Error("Invalid JSON format");
         }
 
-        console.log("Initialization complete, event listeners added.");
+        // 1. Populate Type
+        const types = [...new Set(localItems.map(i => i.Type))].sort();
+        populateDropdown(typeFilter, types, "Choose Type");
+        
+        // Reset downstream
+        resetDropdown(lwcFilter, "Select Type First");
+        resetDropdown(partnerFilter, "Select LWC First");
+        resetDropdown(insulationFilter, "Select LWC/Partner First");
+        resetDropdown(lengthFilter, "Select Insulation First");
+        partnerFilterContainer.classList.add('hidden');
+        showMessage("Select options above to see results.");
 
-    } catch (error) {
-        console.error('Initialization failed:', error);
-        showErrorMessage(`Error loading application data: ${error.message}. Please check console or try refreshing.`);
-         [lwcFilter, secondLwcFilter, insulationFilter, lengthFilter].forEach(el => {
-             if (el) {
-                 el.innerHTML = '<option value="">Error</option>';
-                 el.disabled = true;
-             }
-         });
+        // --- Event Listeners ---
+
+        // Type Change
+        typeFilter.addEventListener('change', () => {
+            const selectedType = typeFilter.value;
+            
+            resetDropdown(lwcFilter, selectedType ? "Choose LWC" : "Select Type First");
+            resetDropdown(partnerFilter, "Select LWC First");
+            resetDropdown(insulationFilter, "Select Prev First");
+            resetDropdown(lengthFilter, "Select Prev First");
+            partnerFilterContainer.classList.add('hidden');
+            showMessage("Select options above.");
+
+            if (selectedType) {
+                const lwcs = [...new Set(localItems
+                    .filter(i => i.Type === selectedType)
+                    .map(i => i.lwc))]
+                    .sort((a, b) => parseFraction(a) - parseFraction(b));
+                populateDropdown(lwcFilter, lwcs, "Choose LWC");
+            }
+        });
+
+        // LWC Change
+        lwcFilter.addEventListener('change', () => {
+            const selectedType = typeFilter.value;
+            const selectedLwc = lwcFilter.value;
+
+            resetDropdown(partnerFilter, "Select LWC First");
+            resetDropdown(insulationFilter, "Select Prev First");
+            resetDropdown(lengthFilter, "Select Prev First");
+            partnerFilterContainer.classList.add('hidden'); // Default hide
+            showMessage("Select options above.");
+
+            if (selectedLwc) {
+                // Filter items for this Type + LWC
+                const potentialItems = localItems.filter(i => i.Type === selectedType && i.lwc === selectedLwc);
+                
+                // Check if ANY of these items have a "partner" value that isn't empty
+                const hasPartners = potentialItems.some(i => i.partner && i.partner !== "");
+
+                if (hasPartners) {
+                    // Show Partner Dropdown
+                    partnerFilterContainer.classList.remove('hidden');
+                    const partners = [...new Set(potentialItems.map(i => i.partner))]
+                        .filter(p => p !== "") // Exclude empty strings from the list
+                        .sort((a, b) => parseFraction(a) - parseFraction(b));
+                    
+                    populateDropdown(partnerFilter, partners, "Choose Partner");
+                    resetDropdown(insulationFilter, "Select Partner First");
+                } else {
+                    // No Partner needed, set value to "" and go straight to Insulation
+                    partnerFilter.value = ""; 
+                    const insulations = [...new Set(potentialItems.map(i => i.insulation))]
+                        .sort((a, b) => parseFraction(a) - parseFraction(b));
+                    populateDropdown(insulationFilter, insulations, "Choose Insulation");
+                }
+            }
+        });
+
+        // Partner Change
+        partnerFilter.addEventListener('change', () => {
+            const selectedType = typeFilter.value;
+            const selectedLwc = lwcFilter.value;
+            const selectedPartner = partnerFilter.value;
+
+            resetDropdown(insulationFilter, selectedPartner ? "Choose Insulation" : "Select Partner First");
+            resetDropdown(lengthFilter, "Select Insulation First");
+            showMessage("Select options above.");
+
+            if (selectedPartner) {
+                const insulations = [...new Set(localItems
+                    .filter(i => i.Type === selectedType && i.lwc === selectedLwc && i.partner === selectedPartner)
+                    .map(i => i.insulation))]
+                    .sort((a, b) => parseFraction(a) - parseFraction(b));
+                populateDropdown(insulationFilter, insulations, "Choose Insulation");
+            }
+        });
+
+        // Insulation Change
+        insulationFilter.addEventListener('change', () => {
+            const selectedType = typeFilter.value;
+            const selectedLwc = lwcFilter.value;
+            // If hidden, partner is "", otherwise use value
+            const selectedPartner = !partnerFilterContainer.classList.contains('hidden') ? partnerFilter.value : "";
+            const selectedIns = insulationFilter.value;
+
+            resetDropdown(lengthFilter, selectedIns ? "Choose Length" : "Select Insulation First");
+            showMessage("Select options above.");
+
+            if (selectedIns) {
+                const lengths = [...new Set(localItems
+                    .filter(i => 
+                        i.Type === selectedType && 
+                        i.lwc === selectedLwc && 
+                        i.partner === selectedPartner && 
+                        i.insulation === selectedIns
+                    )
+                    .map(i => i.length))]
+                    .map(String)
+                    .sort((a, b) => parseFloat(a) - parseFloat(b));
+                populateDropdown(lengthFilter, lengths, "Choose Length");
+            }
+        });
+
+        // Length Change -> SHOW RESULT
+        lengthFilter.addEventListener('change', findAndDisplayResult);
+        
+        // Reset
+        resetButton.addEventListener('click', () => {
+            typeFilter.value = "";
+            typeFilter.dispatchEvent(new Event('change'));
+        });
+
+    } catch (err) {
+        console.error(err);
+        showMessage("Error loading product data. Please ensure products.json exists.", true);
     }
 };
 
-// --- Initial Calls (AFTER DOM is ready) ---
-document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-});
+document.addEventListener('DOMContentLoaded', initializeApp);
