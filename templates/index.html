@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Hub - Specifications</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+
+        select,
+        button,
+        header,
+        main,
+        label,
+        footer,
+        input {
+            transition: all 0.3s ease-in-out;
+        }
+
+        select:disabled {
+            background-color: #e5e7eb;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .dark select:disabled {
+            background-color: #4b5563;
+        }
+
+        .result-card {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-font {
+            font-family: Arial, sans-serif;
+            font-weight: 700;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .animated-hub {
+            animation: rainbowHub 6s infinite;
+            color: white !important;
+        }
+
+        @keyframes rainbowHub {
+            0% {
+                background-color: #ef4444;
+            }
+
+            14% {
+                background-color: #f97316;
+            }
+
+            28% {
+                background-color: #eab308;
+            }
+
+            42% {
+                background-color: #22c55e;
+            }
+
+            57% {
+                background-color: #3b82f6;
+            }
+
+            71% {
+                background-color: #8b5cf6;
+            }
+
+            85% {
+                background-color: #ec4899;
+            }
+
+            100% {
+                background-color: #ef4444;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200 font-sans min-h-screen flex flex-col items-center pt-8 md:pt-12 px-4">
+    <div class="container mx-auto max-w-6xl w-full">
+
+        <header class="bg-gray-800 rounded-lg shadow-md p-6 mb-8 text-center border border-gray-700 relative">
+            <a href="/admin"
+                class="absolute top-4 right-4 z-10 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-400 hover:text-white rounded-md text-sm font-medium transition shadow-sm border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                Admin
+            </a>
+            <div class="flex justify-center items-center mb-2">
+                <h1 class="text-3xl sm:text-4xl logo-font text-white tracking-tight">
+                    <span class="animated-hub px-2 py-1 rounded-md ml-1">Production Hub</span>
+                </h1>
+            </div>
+            <p class="text-xl sm:text-2xl text-gray-300 mt-1">Production Specifications</p>
+        </header>
+
+        <div class="mb-8 relative">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="search" id="searchInput"
+                    class="block w-full pl-12 pr-4 py-4 bg-gray-800 border border-gray-600 rounded-lg text-white text-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition shadow-lg"
+                    placeholder="Start typing Part Number, LWC, or Specs to search...">
+            </div>
+            <div id="searchResultsList"
+                class="mt-2 bg-gray-800 rounded-lg border border-gray-700 shadow-xl overflow-hidden hidden z-50"></div>
+        </div>
+
+        <div id="filters" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <div class="relative">
+                <label for="typeFilter"
+                    class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">Type</label>
+                <select id="typeFilter"
+                    class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></select>
+            </div>
+            <div class="relative">
+                <label for="lwcFilter" class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">LWC</label>
+                <select id="lwcFilter"
+                    class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    disabled></select>
+            </div>
+            <div id="partnerFilterContainer" class="relative hidden">
+                <label for="partnerFilter"
+                    class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">Partner</label>
+                <select id="partnerFilter"
+                    class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    disabled></select>
+            </div>
+            <div class="relative">
+                <label for="insulationFilter"
+                    class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">Insulation</label>
+                <select id="insulationFilter"
+                    class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    disabled></select>
+            </div>
+            <div class="relative">
+                <label for="lengthFilter"
+                    class="absolute -top-3 left-3 bg-gray-900 px-1 text-sm text-gray-400">Length</label>
+                <select id="lengthFilter"
+                    class="w-full p-3 text-lg border border-gray-600 rounded-md bg-gray-700 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    disabled></select>
+            </div>
+        </div>
+
+        <div class="flex justify-center mb-8">
+            <button id="resetButton"
+                class="px-5 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 transition">
+                Reset Selections
+            </button>
+        </div>
+
+        <main id="results-container"
+            class="bg-gray-800 rounded-lg shadow-md p-6 min-h-[200px] flex items-center justify-center border border-gray-700">
+            <p class="text-lg text-gray-400">Select options above or type to search.</p>
+        </main>
+
+        <footer class="text-center mt-8 text-sm text-gray-400">
+            Production Hub v6.9
+        </footer>
+    </div>
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>

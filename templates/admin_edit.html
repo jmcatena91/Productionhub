@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - {% if product %}Edit Product {{ product.id }}{% else %}Add New Product{% endif %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans min-h-screen pt-8 px-4">
+
+    <div class="container mx-auto max-w-2xl">
+        <header class="bg-gray-800 rounded-lg shadow-md p-6 mb-8 text-center border border-gray-700">
+            <h1 class="text-3xl font-bold text-amber-500">
+                {% if product %}Edit Product (ID: {{ product.id }}){% else %}Add New Product Specification{% endif %}
+            </h1>
+        </header>
+
+        <form method="POST" action="{% if product %}{{ url_for('admin_edit', product_id=product.id) }}{% else %}{{ url_for('admin_add') }}{% endif %}" class="space-y-6 bg-gray-800 p-8 rounded-lg shadow-xl border border-gray-700">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="product_type" class="block text-sm font-medium text-amber-500">Type (e.g., A, B)</label>
+                    <input type="text" id="product_type" name="product_type" value="{{ product.product_type if product else '' }}" required
+                           class="w-full mt-1 p-3 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+
+                <div>
+                    <label for="partNumber" class="block text-sm font-medium text-amber-500">Part Number</label>
+                    <input type="text" id="partNumber" name="partNumber" value="{{ product.partNumber if product else '' }}"
+                           class="w-full mt-1 p-3 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="lwc" class="block text-sm font-medium text-gray-300">LWC (e.g., 1/4)</label>
+                    <input type="text" id="lwc" name="lwc" value="{{ product.lwc if product else '' }}" required
+                           class="w-full mt-1 p-3 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+
+                <div>
+                    <label for="partner" class="block text-sm font-medium text-gray-300">Partner (Optional)</label>
+                    <input type="text" id="partner" name="partner" value="{{ product.partner if product and product.partner else '' }}"
+                           class="w-full mt-1 p-3 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="insulation" class="block text-sm font-medium text-gray-300">Insulation</label>
+                    <input type="text" id="insulation" name="insulation" value="{{ product.insulation if product else '' }}" required
+                           class="w-full mt-1 p-3 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+
+                <div>
+                    <label for="length" class="block text-sm font-medium text-gray-300">Length</label>
+                    <input type="text" id="length" name="length" value="{{ product.length if product else '' }}" required
+                           class="w-full mt-1 p-3 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="bladeSize" class="block text-sm font-medium text-gray-300">Blade Size</label>
+                    <input type="text" id="bladeSize" name="bladeSize" value="{{ product.bladeSize if product else '' }}" required
+                           class="w-full mt-1 p-3 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+                
+                <div>
+                    <label for="layers" class="block text-sm font-medium text-gray-300">Layers</label>
+                    <input type="text" id="layers" name="layers" value="{{ product.layers if product else '' }}" required
+                           class="w-full mt-1 p-3 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="qtyPerPallet" class="block text-sm font-medium text-gray-300">QTY. per Pallet</label>
+                    <input type="text" id="qtyPerPallet" name="qtyPerPallet" value="{{ product.qtyPerPallet if product else '' }}" required
+                           class="w-full mt-1 p-3 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+                
+                <div>
+                    <label for="boxPallet" class="block text-sm font-medium text-gray-300">Box Pallet</label>
+                    <input type="text" id="boxPallet" name="boxPallet" value="{{ product.boxPallet if product else '' }}" required
+                           class="w-full mt-1 p-3 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+            </div>
+
+            <div class="pt-4 flex items-center justify-between">
+                <a href="{{ url_for('admin_products') }}" class="text-gray-400 hover:text-amber-500 transition font-medium">← Back to List</a>
+                <button type="submit"
+                        class="px-8 py-3 bg-amber-500 text-black font-bold rounded-md shadow-md hover:bg-amber-600 transition duration-150">
+                    {% if product %}Save Changes{% else %}Add Product{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

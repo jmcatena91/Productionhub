@@ -1,0 +1,7 @@
+{
+  "name": "Production Hub",
+  "short_name": "ProdHub",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any"
+}
