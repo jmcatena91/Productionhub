@@ -86,8 +86,8 @@ This is the primary way to manage products. Information is stored in a database 
 
 1.  Navigate to **`/admin/login`** (e.g., `http://localhost:8003/admin/login`).
 2.  Log in with the default credentials:
-    *   **Username**: `Admin`
-    *   **Password**: `Admin123`
+    *   **Username**: `[Contact System Administrator]`
+    *   **Password**: `[Contact System Administrator]`
 3.  Use the interface to **Add**, **Edit**, or **Delete** products.
 4.  **Note**: Any changes made here are immediately live and saved to both the database and `static/data/products.json`.
 
